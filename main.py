@@ -14,6 +14,6 @@ def main():
     # bmse.limit = 5
     # bmse.start(college_url['bmse'])
     # sie.limit = 5
-    sie.start(college_url['sie'])
+    # sie.start(college_url['sie'])
 
 main()

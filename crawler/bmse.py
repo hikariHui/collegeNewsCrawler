@@ -55,6 +55,7 @@ def getNewsList(url, try_times = 1):
                         pass
                     finally:
                         if not limit or times[title] <= limit:
+                            print(title + '：' + str(times[title]))
                             getContent('http://www2.scut.edu.cn' + tag['href'], title)
             finally:
                 next_page = soup.find('a', class_='next')

@@ -24,4 +24,20 @@ def save(source, bank, title, news_url, form, news_html, date, update_time):
     finally:
         pass
 
-update = save
+def update(source, bank, title, news_url, form, news_html, date, update_time):
+    global db
+    cursor = db.cursor()
+    sql = "SELECT * FROM scut_news \
+        WHERE news_url = '%s'" % (news_url)
+    try:
+        cursor.execute(sql)
+        results = cursor.fetchall()
+        # print(results)
+        if len(results) == 0:
+            save(source, bank, title, news_url, form, news_html, date, update_time)
+    except Exception as e:
+        print(e)
+    else:
+        pass
+    finally:
+        pass
