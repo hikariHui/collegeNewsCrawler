@@ -84,7 +84,7 @@ def getContent(url, bank, date, try_times = 1):
             getContent(url, bank, date, try_times = try_times+1)
         else:
             source = '生命科学研究院'
-            bank = '新闻动态/' + bank
+            bank = bank
             news_url = url
             date = date
             update_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
