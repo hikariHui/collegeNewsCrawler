@@ -1,3 +1,6 @@
-/爬虫格式.docx
-/微信图片_20180828174502.png
+*.docx
+*.png
+test.py
+test.html
 /crawler/__pycache__/*
+/common/__pycache__/*
