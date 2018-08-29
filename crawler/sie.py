@@ -18,7 +18,7 @@ def start(url, try_times = 1):
             print('错误URL：' + url)
             print(e)
             print('进行第%d次尝试'%(try_times+1))
-            getMoreUrl(url, try_times = try_times+1)
+            start(url, try_times = try_times+1)
         else:
             soup = BeautifulSoup(html, "html.parser")
             tag = soup.find('a', id='p16c4996')
@@ -83,10 +83,11 @@ def getNewsList(url, try_times = 1):
                         if not limit or times[title] <= limit:
                             print(title + '：' + str(times[title]))
                             getContent(common.checkUrl(tag['href']), title)
-            finally:
-                next_page = soup.find('a', class_='next')
-                if next_page['href'] != 'javascript:void(0);':
-                    getNewsList(common.checkUrl(next_page['href']))
+                if not limit or times[title] <= limit:
+                    next_page = soup.find('a', class_='next')
+                    if next_page != None:
+                        if next_page['href'] != 'javascript:void(0);':
+                            getNewsList('http://www2.scut.edu.cn' + next_page['href'])
         finally:
             pass
 
@@ -98,6 +99,11 @@ def getContent(url, bank, try_times = 1):
             title = soup.find('span', class_='Article_Title').get_text().replace('  ', '')
             news_html = str(common.replaceUrl(soup.find('div', class_='Article_Content'))).replace('\'', '\\\'').replace('\"','\\\"')
             date = soup.find('span', class_='Article_PublishDate').get_text()
+            form_tag = soup.find('a', title='原文')
+            if form_tag != None:
+                form = form_tag.get_text()
+            else:
+                form = '国际教育学院'
         except Exception as e:
             print('错误URL：' + url)
             print(e)
@@ -107,7 +113,6 @@ def getContent(url, bank, try_times = 1):
             source = '国际教育学院'
             bank = '学院动态/' + bank
             news_url = url
-            form = '国际教育学院'
             update_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
             # print(source + ' ' + bank + ' ' + title + ' ' + news_url + ' ' + data + ' ' + update_time)
             # print(news_html)

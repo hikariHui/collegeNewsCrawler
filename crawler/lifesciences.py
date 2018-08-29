@@ -23,7 +23,7 @@ def getMoreUrl(url, try_times = 1):
             soup = BeautifulSoup(html, "html.parser")
             tags = soup.find_all('a', class_='more')
             for tag in tags:
-                getNewsList(tag['href'])
+                getNewsList(common.checkUrl(tag['href']))
         finally:
             pass
 
@@ -41,7 +41,7 @@ def getNewsList(url, try_times = 1):
             title = soup.find('title').get_text()
             # tags = soup.find_all('a', class_='more')
             try:
-                tags = soup.find('ul',class_='list-wrap row').find_all('a')
+                tags = soup.find('ul',class_='wp_article_list').find_all('li')
             except Exception as e:
                 pass
             else:
@@ -56,7 +56,7 @@ def getNewsList(url, try_times = 1):
                     finally:
                         if not limit or times[title] <= limit:
                             print(title + '：' + str(times[title]))
-                            getContent('http://www2.scut.edu.cn' + tag['href'], title)
+                            getContent('http://www2.scut.edu.cn' + tag.find('a')['href'], title, tag.find('span', class_='Article_PublishDate').get_text())
                 if not limit or times[title] <= limit:
                     next_page = soup.find('a', class_='next')
                     if next_page != None:
@@ -65,28 +65,28 @@ def getNewsList(url, try_times = 1):
         finally:
             pass
 
-def getContent(url, bank, try_times = 1):
+def getContent(url, bank, date, try_times = 1):
     if try_times <= 3:
         try:
             html = urllib.request.urlopen(url).read().decode(encoding='utf-8')
             soup = BeautifulSoup(html, "html.parser")
-            title = soup.find('div', class_='artcle-title').get_text().replace('  ', '')
+            title = soup.find('span', class_='news_title').get_text().replace('  ', '')
             news_html = str(common.replaceUrl(soup.find('div', class_='Article_Content'))).replace('\'', '\\\'').replace('\"','\\\"')
-            date = re.search(r'发布时间：(\d+-\d+-\d+)', soup.find('div', class_='artcle-message').get_text()).group(1)
             form_tag = soup.find('a', title='原文')
             if form_tag != None:
                 form = form_tag.get_text()
             else:
-                form = '生物医学科学与工程学院'
+                form = '生命科学研究院'
         except Exception as e:
             print('错误URL：' + url)
             print(e)
             print('进行第%d次尝试'%(try_times+1))
-            getContent(url, bank,try_times = try_times+1)
+            getContent(url, bank, date, try_times = try_times+1)
         else:
-            source = '生物医学科学与工程学院'
+            source = '生命科学研究院'
             bank = '新闻动态/' + bank
             news_url = url
+            date = date
             update_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
             # print(source + ' ' + bank + ' ' + title + ' ' + news_url + ' ' + data + ' ' + update_time)
             # print(news_html)
