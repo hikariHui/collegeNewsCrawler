@@ -24,8 +24,8 @@ def getMoreUrl(url, try_times = 1):
             tags = soup.find_all('a', class_='more')
             for tag in tags:
                 getNewsList(common.checkUrl(tag['href']))
-        finally:
-            pass
+            for key in times:
+                print(key + '：' + str(times[key]))
 
 def getNewsList(url, try_times = 1):
     if try_times <= 3:
@@ -47,23 +47,17 @@ def getNewsList(url, try_times = 1):
             else:
                 for tag in tags:
                     # print(title)
-                    try:
+                    if title not in times:
+                        times[title] = 0
+                    if not limit or times[title] < limit:
+                        # print(title + '：' + str(times[title]))
                         times[title] = times[title] + 1
-                    except Exception as e:
-                        times[title] = 1
-                    else:
-                        pass
-                    finally:
-                        if not limit or times[title] <= limit:
-                            print(title + '：' + str(times[title]))
-                            getContent('http://www2.scut.edu.cn' + tag.find('a')['href'], title, tag.find('span', class_='Article_PublishDate').get_text())
-                if not limit or times[title] <= limit:
+                        getContent('http://www2.scut.edu.cn' + tag.find('a')['href'], title, tag.find('span', class_='Article_PublishDate').get_text())
+                if not limit or times[title] < limit:
                     next_page = soup.find('a', class_='next')
                     if next_page != None:
                         if next_page['href'] != 'javascript:void(0);':
                             getNewsList('http://www2.scut.edu.cn' + next_page['href'])
-        finally:
-            pass
 
 def getContent(url, bank, date, try_times = 1):
     if try_times <= 3:
@@ -82,6 +76,7 @@ def getContent(url, bank, date, try_times = 1):
             print(e)
             print('进行第%d次尝试'%(try_times+1))
             getContent(url, bank, date, try_times = try_times+1)
+            result = True
         else:
             source = '生命科学研究院'
             bank = bank
@@ -91,10 +86,12 @@ def getContent(url, bank, date, try_times = 1):
             # print(source + ' ' + bank + ' ' + title + ' ' + news_url + ' ' + data + ' ' + update_time)
             # print(news_html)
             if limit:
-                sql.update(source, bank, title, news_url, form, news_html, date, update_time)
+                result = sql.update(source, bank, title, news_url, form, news_html, date, update_time)
             else:
-                sql.save(source, bank, title, news_url, form, news_html, date, update_time)
-        finally:
-            pass
+                result = sql.save(source, bank, title, news_url, form, news_html, date, update_time)
+    else:
+        result = False
+    if not result:
+        times[bank] = times[bank] - 1
 
 start = getMoreUrl

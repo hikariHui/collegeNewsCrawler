@@ -29,15 +29,13 @@ def start(url, try_times = 1):
             for key in tags:
                 try:
                     url = tags[key]['href']
-                    print(url)
+                    # print(url)
                 except Exception as e:
                     print('获取 医学院 %s 地址失败' % (key))
                 else:
                     getMoreUrl(common.checkUrl(url), key)
-                finally:
-                    pass
-        finally:
-            pass
+            for key in times:
+                print(key + '：' + str(times[key]))
 
 def getMoreUrl(url, bank, try_times = 1):
     if try_times <= 3:
@@ -61,12 +59,6 @@ def getMoreUrl(url, bank, try_times = 1):
                         getNewsList(common.checkUrl(tag['href']), bank + '/' + tag['title'])
                     except Exception as e:
                         pass
-                    else:
-                        pass
-                    finally:
-                        pass
-        finally:
-            pass
 
 def getNewsList(url, bank, try_times = 1):
     if try_times <= 3:
@@ -88,23 +80,17 @@ def getNewsList(url, bank, try_times = 1):
             else:
                 for tag in tags:
                     # print(bank)
-                    try:
+                    if bank not in times:
+                        times[bank] = 0
+                    if not limit or times[bank] < limit:
+                        # print(bank + '：' + str(times[bank]))
                         times[bank] = times[bank] + 1
-                    except Exception as e:
-                        times[bank] = 1
-                    else:
-                        pass
-                    finally:
-                        if not limit or times[bank] <= limit:
-                            print(bank + '：' + str(times[bank]))
-                            getContent(common.checkUrl(tag['href']), bank)
-                if not limit or times[bank] <= limit:
+                        getContent(common.checkUrl(tag['href']), bank)
+                if not limit or times[bank] < limit:
                     next_page = soup.find('a', class_='next')
                     if next_page != None:
                         if next_page['href'] != 'javascript:void(0);':
                             getNewsList(common.checkUrl(next_page['href']), bank)
-        finally:
-            pass
 
 def getContent(url, bank, try_times = 1):
     if try_times <= 3:
@@ -124,6 +110,7 @@ def getContent(url, bank, try_times = 1):
             print(e)
             print('进行第%d次尝试'%(try_times+1))
             getContent(url, bank,try_times = try_times+1)
+            result = True
         else:
             source = '医学院'
             bank = bank
@@ -132,8 +119,10 @@ def getContent(url, bank, try_times = 1):
             # print(source + ' ' + bank + ' ' + title + ' ' + news_url + ' ' + data + ' ' + update_time)
             # print(news_html)
             if limit:
-                sql.update(source, bank, title, news_url, form, news_html, date, update_time)
+                result = sql.update(source, bank, title, news_url, form, news_html, date, update_time)
             else:
-                sql.save(source, bank, title, news_url, form, news_html, date, update_time)
-        finally:
-            pass
+                result = sql.save(source, bank, title, news_url, form, news_html, date, update_time)
+    else:
+        result = False
+    if not result:
+        times[bank] = times[bank] - 1

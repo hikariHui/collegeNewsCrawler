@@ -18,11 +18,11 @@ def save(source, bank, title, news_url, form, news_html, date, update_time):
         db.commit()
     except Exception as e:
         print(e)
+        print('存入数据库失败，URL：' + news_url)
         db.rollback()
+        return False
     else:
-        pass
-    finally:
-        pass
+        return True
 
 def update(source, bank, title, news_url, form, news_html, date, update_time):
     global db
@@ -33,11 +33,12 @@ def update(source, bank, title, news_url, form, news_html, date, update_time):
         cursor.execute(sql)
         results = cursor.fetchall()
         # print(results)
-        if len(results) == 0:
-            save(source, bank, title, news_url, form, news_html, date, update_time)
     except Exception as e:
         print(e)
+        print('检查失败，URL：' + news_url)
+        return False
     else:
-        pass
-    finally:
-        pass
+        if len(results) == 0:
+            return save(source, bank, title, news_url, form, news_html, date, update_time)
+        else:
+            return True

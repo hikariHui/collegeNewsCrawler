@@ -26,10 +26,6 @@ def replaceUrl(content):
                 tag['src'] = 'http://www2.scut.edu.cn' + tag['sudy-wp-src']
                 tag['controls'] = 'controls'
                 # print(content)
-    except Exception as e:
-        pass
-    else:
-        pass
     finally:
         return content
 
